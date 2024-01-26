@@ -17,6 +17,8 @@ jobs:
     deploy:
         needs: Unit_testing
         runs-on: ubuntu-latest
+        outputs:
+          script-files: ${{ steps.publish.outputs.script-files}}
         steps:
             - name: get code
               uses: actions/checkout@v4
@@ -27,7 +29,10 @@ jobs:
             - name: install  dependecies
               run: npm ci
             - name: run Build
-              run: npm run build
+              run: npm run build4
+            - name: publish js filename
+              id: publish
+              run: find dist/assets/*.js -type f -execdir echo 'script-files={}' >> $GITHUB_OUTPUT ';'
             - name: Upload Artificat
               uses: actions/upload-artifact@v3
               with:
@@ -43,5 +48,7 @@ jobs:
               uses: actions/download-artifact@v3
               with:
                 name: dist-files
+            - name: output file name
+              run: echo "${{ needs.deploy.outputs.script-files}}"
             - name: deploy
               run: echo "deploying ....."
